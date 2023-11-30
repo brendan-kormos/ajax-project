@@ -1,7 +1,67 @@
+/* @font-face {
+font-family: "CustomFont";
+src: url("CustomFont.eot");
+src: url("CustomFont.woff") format("woff"),
+url("CustomFont.otf") format("opentype"),
+url("CustomFont.svg#filename") format("svg");
+} */
+
 .hidden {
   display: none !important;
 }
 
 body {
-  background: black;
+  background: #0b0b0b;
+}
+
+.nav-bar-home {
+  color: white;
+  font-size: 30px;
+}
+
+.masonry-blocks {
+  border-radius: 8px;
+
+  /* background: #ebeded; */
+}
+
+/* .masonry-blocks a {
+  position: relative;
+} */
+
+/* .list-entry-image {
+  overflow: hidden;
+} */
+
+.list-entry-image {
+  /* box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25); */
+  border-radius: 8px;
+  box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05);
+}
+
+.list-entry a {
+  position: relative;
+}
+
+.list-entry a::after {
+  position: absolute;
+  display: inline-block;
+  content: 'HELLO';
+  color: white;
+  background: rgba(217, 217, 217, 0.5);
+  padding: 8px;
+  right: 0;
+  left: 0;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+
+  /* top: 20px; */
+  border-radius: 0 8px 8px 0;
+  bottom: 200%;
+  width: 25%;
+  height: 100%;
+}
+
+a:hover,
+button:hover {
+  cursor: pointer;
 }
