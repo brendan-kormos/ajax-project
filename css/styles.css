@@ -1,10 +1,13 @@
-/* @font-face {
-font-family: "CustomFont";
-src: url("CustomFont.eot");
-src: url("CustomFont.woff") format("woff"),
-url("CustomFont.otf") format("opentype"),
-url("CustomFont.svg#filename") format("svg");
-} */
+@font-face {
+  font-family: NATS;
+  src:
+    url("/fonts/webfonts_NATS/NATS.ttf.woff") format("woff"),
+    url("/fonts/webfonts_NATS.ttf.svg#NATS") format("svg"),
+    url("/fonts/webfonts_NATS.ttf.eot"),
+    url("/fonts/webfonts_NATS.ttf.eot?#iefix") format("embedded-opentype");
+  font-weight: normal;
+  font-style: normal;
+}
 
 .hidden {
   display: none !important;
@@ -46,19 +49,27 @@ body {
 .list-entry a::after {
   position: absolute;
   display: inline-block;
-  content: 'HELLO';
+  content: "HELLO";
   color: white;
-  background: rgba(217, 217, 217, 0.5);
-  padding: 8px;
+  background: rgba(196, 186, 186, 0.5);
+  padding: 8px 40px;
   right: 0;
   left: 0;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  font-family: NATS;
+  font-size: 24px;
+  line-height: 24px;
 
   /* top: 20px; */
   border-radius: 0 8px 8px 0;
   bottom: 200%;
-  width: 25%;
-  height: 100%;
+  width: fit-content;
+
+  /* -webkit-text-stroke: 1px;
+  -webkit-text-stroke-color: wheat; */
+
+  /* width: 100%; */
+  height: calc(max-content - 24px);
 }
 
 a:hover,
