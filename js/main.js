@@ -27,8 +27,6 @@ function loadHomePage(retrieval) {
       'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
     );
     xhr.addEventListener('load', function () {
-      console.log(xhr.response);
-      console.log(xhr.status);
       const response = xhr.response;
       for (let i = 0; i < response.results.length; i++) {
         const dataEntry = response.results[i];
@@ -36,8 +34,7 @@ function loadHomePage(retrieval) {
         $listContainer.append($entry);
       }
     });
-  }else if (retrieval === 'local'){
-
+  } else if (retrieval === 'local') {
     for (let i = 0; i < entries20JSON.results.length; i++) {
       const dataEntry = entries20JSON.results[i];
       const $entry = renderListEntry(dataEntry);

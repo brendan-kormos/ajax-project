@@ -26,20 +26,13 @@ body {
 
 .masonry-blocks {
   border-radius: 8px;
-
-  /* background: #ebeded; */
 }
 
-/* .masonry-blocks a {
-  position: relative;
-} */
-
-/* .list-entry-image {
-  overflow: hidden;
-} */
-
 .list-entry-image {
-  /* box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25); */
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
   border-radius: 8px;
   box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05);
 }
