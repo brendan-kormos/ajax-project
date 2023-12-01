@@ -3,18 +3,46 @@
 const $listEntry = document.querySelector('.list-entry');
 const $listContainer = document.querySelector('.masonry-holder');
 
-import entries20 from './Entries_20.json' assert { type: 'json' };
+import entries20JSON from './Entries_20.json' assert { type: 'json' };
 
-console.log(entries20);
+function ajaxGET(url) {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.responseType = 'json';
+  xhr.send();
+  return xhr;
+}
+
 function renderListEntry(entry) {
   const $clone = $listEntry.cloneNode(true);
   $clone.classList.remove('hidden');
   $clone.querySelector('img').src = entry.image_url;
+  $clone.querySelector('a').setAttribute('data-serial', entry.serial_number);
   return $clone;
 }
 
-for (let i = 0; i < entries20.results.length; i++) {
-  const dataEntry = entries20.results[i];
-  const $entry = renderListEntry(dataEntry);
-  $listContainer.append($entry);
+function loadHomePage(retrieval) {
+  if (retrieval === 'get') {
+    const xhr = ajaxGET(
+      'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
+    );
+    xhr.addEventListener('load', function () {
+      console.log(xhr.response);
+      console.log(xhr.status);
+      const response = xhr.response;
+      for (let i = 0; i < response.results.length; i++) {
+        const dataEntry = response.results[i];
+        const $entry = renderListEntry(dataEntry);
+        $listContainer.append($entry);
+      }
+    });
+  }else if (retrieval === 'local'){
+
+    for (let i = 0; i < entries20JSON.results.length; i++) {
+      const dataEntry = entries20JSON.results[i];
+      const $entry = renderListEntry(dataEntry);
+      $listContainer.append($entry);
+    }
+  }
 }
+loadHomePage('get');
