@@ -58,6 +58,7 @@ body {
   bottom: 200%;
   width: fit-content;
   text-align: right;
+  backdrop-filter: blur(2px);
 }
 
 a:hover,

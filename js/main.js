@@ -42,4 +42,4 @@ function loadHomePage(retrieval) {
     }
   }
 }
-loadHomePage('get');
+loadHomePage('local');
