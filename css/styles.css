@@ -10,8 +10,8 @@
 }
 
 :root {
-  --header2FontSize: 24px;
-  --descriptionFontSize: 16px;
+  --header-2-font-size: 24px;
+  --description-font-size: 16px;
 }
 
 .hidden {
@@ -91,12 +91,22 @@ body {
   text-align: center;
 }
 
+.single-entry-info-container > h2 {
+  padding-top: 10px;
+  line-height: var(--header-2-font-size);
+}
+
+.single-entry-info-container > p {
+  line-height: var(--description-font-size);
+}
+
 .divider {
   width: 50%;
   height: 1px;
   background-color: white;
   position: relative;
   left: 25%;
+  margin: 20px 0;
 }
 
 a:hover,

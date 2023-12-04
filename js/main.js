@@ -13,9 +13,9 @@ const $singleEntryInfoContainer = document.querySelector(
 );
 
 const computedRoot = getComputedStyle(root);
-const header2FontSize = computedRoot.getPropertyValue('--header2FontSize');
+const header2FontSize = computedRoot.getPropertyValue('--header-2-font-size');
 const descriptionFontSize = computedRoot.getPropertyValue(
-  '--descriptionFontSize',
+  '--description-font-size',
 );
 console.log(descriptionFontSize);
 
@@ -92,19 +92,35 @@ function createDivider() {
 }
 
 function createTextEntryForSingle(text) {
-  const $newTextDiv = document.createElement('div');
+  const $newTextDiv = document.createElement('p');
   $newTextDiv.textContent = text;
   return $newTextDiv;
 }
 
 function loadSingleEntry(entry) {
   $singleEntryImage.src = entry.image_url;
+
   const $newHeader2 = document.createElement('h2');
-  $newHeader2.textContent = entry.serial_number;
+  $newHeader2.textContent = `${entry.launcher_config.full_name} ${entry.serial_number}`;
   $newHeader2.style['font-size'] = header2FontSize;
   $singleEntryInfoContainer.append($newHeader2);
   let $divider = createDivider();
   $singleEntryInfoContainer.append($divider);
+
+  let $details = createTextEntryForSingle();
+  $details.textContent = entry.launcher_config.description;
+  $details.style['font-size'] = header2FontSize;
+  $singleEntryInfoContainer.append($details);
+
+  // $divider = createDivider();
+  // $divider.style.width = '100%';
+  // $divider.style.left = '0';
+  // $singleEntryInfoContainer.append($divider);
+
+  $details = createTextEntryForSingle();
+  $details.textContent = entry.details;
+  $details.style['font-size'] = header2FontSize;
+  $singleEntryInfoContainer.append($details);
 }
 
 function onListEntryClicked(event) {
@@ -128,8 +144,8 @@ function onListEntryClicked(event) {
       loadSingleEntry(response);
     });
     singleEntryRequest = xhr;
-  } else if (GET_TYPE === 'local'){
-    loadSingleEntry(singleEntryJSON)
+  } else if (GET_TYPE === 'local') {
+    loadSingleEntry(singleEntryJSON);
   }
 
   changeView('single-entry-container');
@@ -143,6 +159,5 @@ for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-
-if (data.view === "single-entry-container") loadSingleEntry(singleEntryJSON)
+if (data.view === 'single-entry-container') loadSingleEntry(singleEntryJSON);
 changeView(data.view, true);
