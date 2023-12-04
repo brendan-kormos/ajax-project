@@ -1,12 +1,30 @@
 // https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20
 // https://lldev.thespacedevs.com/2.2.0/launcher/ID/
+const GET_TYPE = 'local';
+
 const $listEntry = document.querySelector('.list-entry');
 const $listContainer = document.querySelector('.masonry-holder');
 const $homeNavButton = document.querySelector('.nav-bar-home');
+const $singleEntry = document.querySelector('.single-entry');
+const $singleEntryImage = document.querySelector('.single-entry img');
+const root = document.querySelector(':root');
+const $singleEntryInfoContainer = document.querySelector(
+  '.single-entry-info-container',
+);
+
+const computedRoot = getComputedStyle(root);
+const header2FontSize = computedRoot.getPropertyValue('--header2FontSize');
+const descriptionFontSize = computedRoot.getPropertyValue(
+  '--descriptionFontSize',
+);
+console.log(descriptionFontSize);
 
 const $main = document.querySelector('main');
 
+import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
 import entries20JSON from './Entries_20.json' assert { type: 'json' };
+
+let singleEntryRequest = null;
 
 const views$ = {
   'single-entry-container': document.querySelector('#single-entry-container'),
@@ -42,7 +60,7 @@ function renderListEntry(entry) {
 }
 
 function initHomePage(retrieval) {
-  if (retrieval === 'get') {
+  if (retrieval === 'request') {
     const xhr = ajaxGET(
       'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
     );
@@ -66,22 +84,65 @@ function initHomePage(retrieval) {
 function onOpenHomePage(event) {
   if (data.view !== 'home-container') changeView('home-container');
 }
+
+function createDivider() {
+  const $newDivider = document.createElement('div');
+  $newDivider.classList.add('divider');
+  return $newDivider;
+}
+
+function createTextEntryForSingle(text) {
+  const $newTextDiv = document.createElement('div');
+  $newTextDiv.textContent = text;
+  return $newTextDiv;
+}
+
+function loadSingleEntry(entry) {
+  $singleEntryImage.src = entry.image_url;
+  const $newHeader2 = document.createElement('h2');
+  $newHeader2.textContent = entry.serial_number;
+  $newHeader2.style['font-size'] = header2FontSize;
+  $singleEntryInfoContainer.append($newHeader2);
+  let $divider = createDivider();
+  $singleEntryInfoContainer.append($divider);
+}
+
 function onListEntryClicked(event) {
   const $target = event.target;
   const $className = $target.className;
   const tagName = $target.tagName;
   const $listEntry = $target.closest('.list-entry');
-  if ($listEntry) {
-    changeView('single-entry-container');
+  if (!$listEntry) return;
+  if (singleEntryRequest) {
+    console.log(singleEntryRequest);
+    singleEntryRequest.abort();
+    singleEntryRequest = null;
   }
+
+  if (GET_TYPE === 'request') {
+    const xhr = ajaxGET(
+      `https://lldev.thespacedevs.com/2.2.0/launcher/${$listEntry.dataset.id}/`,
+    );
+    xhr.addEventListener('load', function () {
+      const response = xhr.response;
+      loadSingleEntry(response);
+    });
+    singleEntryRequest = xhr;
+  } else if (GET_TYPE === 'local'){
+    loadSingleEntry(singleEntryJSON)
+  }
+
+  changeView('single-entry-container');
 }
 
 $homeNavButton.addEventListener('click', onOpenHomePage);
 views$['home-container'].addEventListener('click', onListEntryClicked);
 
-initHomePage('local');
+initHomePage(GET_TYPE);
 for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
+
+if (data.view === "single-entry-container") loadSingleEntry(singleEntryJSON)
 changeView(data.view, true);

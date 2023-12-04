@@ -4,6 +4,10 @@
   padding: 0 8px;
 }
 
+#single-entry-container {
+  max-width: 1000px;
+}
+
 .masonry-holder {
   column-count: 4;
   column-gap: 20px;
