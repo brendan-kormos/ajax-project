@@ -200,6 +200,10 @@ function loadSingleEntry(entry) {
     $launcherConfigTbody.append($tr);
   });
   $singleEntryInfoContainer.append($launcherConfigTable);
+
+  // const $launcherConfigText = createTextEntryForSingle(entry.launcher_config.description)
+  // $launcherConfigText.style["font-size"] = header2FontSize
+  // $singleEntryInfoContainer.append($launcherConfigText)
 }
 
 function onListEntryClicked(event) {
