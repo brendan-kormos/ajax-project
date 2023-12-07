@@ -1,6 +1,6 @@
 // https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20
 // https://lldev.thespacedevs.com/2.2.0/launcher/ID/
-const GET_TYPE = 'local';
+const GET_TYPE = 'request';
 
 const $listEntry = document.querySelector('.list-entry');
 const $listContainer = document.querySelector('.masonry-holder');
