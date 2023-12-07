@@ -17,6 +17,11 @@ const header2FontSize = computedRoot.getPropertyValue('--header-2-font-size');
 const descriptionFontSize = computedRoot.getPropertyValue(
   '--description-font-size',
 );
+
+const $mainTableTemplate = document.querySelector('#main-table');
+
+const $tableRowTemplate = document.querySelector('.table-row');
+
 console.log(descriptionFontSize);
 
 const $main = document.querySelector('main');
@@ -81,6 +86,15 @@ function initHomePage(retrieval) {
   }
 }
 
+function humanize(str) {
+  let i,
+    frags = str.split('_');
+  for (i = 0; i < frags.length; i++) {
+    frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
+  }
+  return frags.join(' ');
+}
+
 function onOpenHomePage(event) {
   if (data.view !== 'home-container') changeView('home-container');
 }
@@ -91,36 +105,101 @@ function createDivider() {
   return $newDivider;
 }
 
+function createTableRow(text1, text2) {
+  const $newRow = $tableRowTemplate.cloneNode(true);
+  $newRow.children[0].textContent = text1;
+  $newRow.children[1].textContent = text2;
+  $newRow.classList.remove('hidden');
+  return $newRow;
+}
+
 function createTextEntryForSingle(text) {
   const $newTextDiv = document.createElement('p');
   $newTextDiv.textContent = text;
   return $newTextDiv;
 }
+const main_Order = [
+  'status',
+  'flights',
+  'attempted_landings',
+  'successful_landings',
+  'first_launch_date',
+  'last_launch_date',
+];
+const launcherConfig_Order = [
+  'active',
+  'reusable',
+  'pending_launches',
+  'total_launch_count',
+  'successful_launches',
+  'consecutive_successful_launches',
+  'failed_launches',
 
+  'attempted_landings',
+  'successful_landings',
+  'failed_landings',
+];
 function loadSingleEntry(entry) {
   $singleEntryImage.src = entry.image_url;
+  const $newMainTable = $mainTableTemplate.cloneNode(true);
+  const $newMainTbody = $newMainTable.querySelector('tbody');
+  $newMainTable.classList.remove('hidden');
+
+  const $launcherConfigTable = $mainTableTemplate.cloneNode(true);
+  const $launcherConfigTbody = $launcherConfigTable.querySelector('tbody');
+  $launcherConfigTable.classList.remove('hidden');
 
   const $newHeader2 = document.createElement('h2');
   $newHeader2.textContent = `${entry.launcher_config.full_name} ${entry.serial_number}`;
   $newHeader2.style['font-size'] = header2FontSize;
   $singleEntryInfoContainer.append($newHeader2);
+
+  // let $divider = createDivider();
+  // $singleEntryInfoContainer.append($divider);
+
+  const entryDetails = entry.details;
+
+  // let $details = createTextEntryForSingle();
+  // $details.textContent = entry.launcher_config.description;
+  // $details.style['font-size'] = header2FontSize;
+  // $singleEntryInfoContainer.append($details);
+
   let $divider = createDivider();
   $singleEntryInfoContainer.append($divider);
 
-  let $details = createTextEntryForSingle();
-  $details.textContent = entry.launcher_config.description;
-  $details.style['font-size'] = header2FontSize;
-  $singleEntryInfoContainer.append($details);
-
   // $divider = createDivider();
-  // $divider.style.width = '100%';
-  // $divider.style.left = '0';
   // $singleEntryInfoContainer.append($divider);
 
-  $details = createTextEntryForSingle();
-  $details.textContent = entry.details;
-  $details.style['font-size'] = header2FontSize;
-  $singleEntryInfoContainer.append($details);
+  // serial information header
+  const $serialHeader = document.createElement('h3');
+  $serialHeader.id = 'serial-info-header';
+  $serialHeader.textContent = 'Serial Information';
+  $singleEntryInfoContainer.append($serialHeader);
+
+  // let $details = createTextEntryForSingle();
+  // $details.id = "serial-details"
+  // $details.textContent = entry.details;
+  // $details.style['font-size'] = header2FontSize;
+  // $singleEntryInfoContainer.append($details);
+
+  // main order table
+  $singleEntryInfoContainer.append($newMainTable);
+  main_Order.forEach(function (value) {
+    const $tr = createTableRow(humanize(value), entry[value]);
+    $newMainTbody.append($tr);
+  });
+
+  const $launcherConfigHeader = document.createElement('h3');
+  $launcherConfigHeader.id = 'launcher-config-information';
+  $launcherConfigHeader.textContent = 'Launcher Config Information';
+  $singleEntryInfoContainer.append($launcherConfigHeader);
+
+
+  launcherConfig_Order.forEach(function (value) {
+    const $tr = createTableRow(humanize(value), entry.launcher_config[value]);
+    $launcherConfigTbody.append($tr);
+  });
+  $singleEntryInfoContainer.append($launcherConfigTable);
 }
 
 function onListEntryClicked(event) {
