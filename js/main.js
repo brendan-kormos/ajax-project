@@ -28,6 +28,28 @@ const $saveButtonTemplate = document
   .cloneNode(true);
 const $main = document.querySelector('main');
 
+const main_Order = [
+  'status',
+  'flights',
+  'attempted_landings',
+  'successful_landings',
+  'first_launch_date',
+  'last_launch_date',
+];
+const launcherConfig_Order = [
+  'active',
+  'reusable',
+  'pending_launches',
+  'total_launch_count',
+  'successful_launches',
+  'consecutive_successful_launches',
+  'failed_launches',
+
+  'attempted_landings',
+  'successful_landings',
+  'failed_landings',
+];
+
 // import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
 // import entries20JSON from './Entries_20.json' assert { type: 'json' };
 
@@ -67,6 +89,13 @@ function changeView(view, initial) {
   data.view = view;
 }
 
+function scrollTo(pos) {
+  window.scrollTo({
+    top: pos,
+    behavior: 'smooth',
+  });
+}
+
 function renderListEntry(entry) {
   const $clone = $listEntry.cloneNode(true);
   $clone.classList.remove('hidden');
@@ -88,11 +117,11 @@ function initHomePage(retrieval) {
   };
 
   if (retrieval === 'local' && data.cachedIDs.length > 0) {
-    for (let i = 1; i <data.cachedIDs.length; i++) {
+    for (let i = 1; i < data.cachedIDs.length; i++) {
       const dataEntry = data.cachedIDs[i];
       appendNodes(dataEntry);
     }
-  } else if (retrieval === 'request') {
+  } else {
     const xhr = ajaxGET(
       'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
     );
@@ -151,28 +180,9 @@ function createTextEntryForSingle(text) {
   $newTextDiv.textContent = text;
   return $newTextDiv;
 }
-const main_Order = [
-  'status',
-  'flights',
-  'attempted_landings',
-  'successful_landings',
-  'first_launch_date',
-  'last_launch_date',
-];
-const launcherConfig_Order = [
-  'active',
-  'reusable',
-  'pending_launches',
-  'total_launch_count',
-  'successful_launches',
-  'consecutive_successful_launches',
-  'failed_launches',
 
-  'attempted_landings',
-  'successful_landings',
-  'failed_landings',
-];
 function loadSingleEntry(entry) {
+  scrollTo(0)
   data.singleEntry = entry;
 
   $singleEntryImage.src = entry.image_url;
@@ -262,9 +272,9 @@ function onListEntryClicked(event) {
     singleEntryRequest = null;
   }
 
-  if (GET_TYPE === 'local' && data.singleEntry) {
+  if (GET_TYPE === 'local' && data.cachedIDs[$listEntry.dataset.id]) {
     //prefer local
-    loadSingleEntry(data.singleEntry);
+    loadSingleEntry(data.cachedIDs[$listEntry.dataset.id]);
   } else {
     //request
     const xhr = ajaxGET(
@@ -309,4 +319,6 @@ for (const child of $main.children) {
 }
 
 if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
+
 changeView(data.view, true);
+scrollTo(data.scrollPositions[data.view]);
