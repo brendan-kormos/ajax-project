@@ -15,7 +15,8 @@
   --header-2-font-size: 24px;
   --description-font-size: 16px;
   --unselected-nav-text-color: rgba(255, 255, 255, 0.692);
-  --unselected-nav-text-color-when-hovering: rgba(255, 255, 255, 0.755);
+  --unselected-nav-text-color-when-hovering: rgba(255, 255, 255, 0.905);
+  --other-unselected-nav-text-color-when-hovering: rgba(255, 255, 255, 0.75);
   --nav-bar-font-size: 30px;
   --primary-font-family: nats;
   --nav-bar-font-color: white;
@@ -52,10 +53,14 @@ body {
   width: 100%;
 }
 
-/* #nav-bar-saves:hover ~ a:not(.selected-text),
-#nav-bar-home:hover ~ a:not(.selected-text) {
+.nav-bar-text-item:hover {
   color: var(--unselected-nav-text-color-when-hovering);
-} */
+}
+
+#nav-bar-saves:hover ~ a:not(.selected-text),
+#nav-bar-home:hover ~ a:not(.selected-text) {
+  color: var(--other-unselected-nav-text-color-when-hovering);
+}
 
 .selected-text {
   color: white;

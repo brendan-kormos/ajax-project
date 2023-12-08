@@ -123,6 +123,7 @@ function initHomePage(retrieval) {
       setSaveIcon($entry.querySelector('.save-button-i'), true);
     }
   };
+  newSelectedText($homeNavButton);
 
   if (retrieval === 'local' && data.cachedIDs.length > 0) {
     for (let i = 1; i < data.cachedIDs.length; i++) {
@@ -144,6 +145,31 @@ function initHomePage(retrieval) {
   }
 }
 
+function initSavesPage(retrieval) {
+  const appendNodes = (dataEntry) => {
+    const $entry = renderListEntry(dataEntry);
+    $homeContainer.append($entry);
+    if (data.saves[dataEntry.id.toString()]) {
+      setSaveIcon($entry.querySelector('.save-button-i'), true);
+    }
+  };
+
+  const $container = views$['saves-container'];
+
+  let index = 0;
+  for (const child of Array.from($container.children)) {
+    $container.removeChild(child);
+  }
+  for (const id in data.saves) {
+    const entry = data.saves[id];
+    const $entry = renderListEntry(entry);
+    $container.append($entry);
+    setSaveIcon($entry.querySelector('.save-button-i'), true);
+  }
+
+  newSelectedText($savesNavButton);
+}
+
 function humanize(str) {
   let i,
     frags = str.split('_');
@@ -154,8 +180,8 @@ function humanize(str) {
 }
 
 function newSelectedText($target) {
+  console.log($target);
   document.querySelectorAll('.nav-bar > a').forEach(function ($element) {
-    console.log($element === $target);
     if ($element === $target) {
       $element.classList.add('selected-text');
     } else $element.classList.remove('selected-text');
@@ -163,7 +189,7 @@ function newSelectedText($target) {
 }
 
 function onOpenHomePage(event) {
-  const $target = event.target
+  const $target = event.target;
   const $container = views$['home-container'];
   for (let i = 0; i < $container.children.length; i++) {
     const $entry = $container.children[i];
@@ -180,18 +206,7 @@ function onOpenHomePage(event) {
 }
 
 function onOpenSavesPage(event) {
-  const $target = event.target;
-  const $container = views$['saves-container'];
-
-  let index = 0;
-  for (let i = 0; i < $container.children.length; i++) {
-    const $entry = $container.children[index];
-    if ($entry.dataset.id) {
-      console.log('removing item', $entry);
-      $entry.remove();
-    } else index++;
-  }
-  newSelectedText($target)
+  initSavesPage(GET_TYPE);
   if (data.view !== 'saves-container') changeView('saves-container');
 }
 
@@ -228,6 +243,7 @@ function createTextEntryForSingle(text) {
 }
 
 function loadSingleEntry(entry) {
+  newSelectedText();
   scrollTo(0);
   data.singleEntry = entry;
 
@@ -362,18 +378,33 @@ function onSingleEntryContainerClicked(event) {
 
 $homeNavButton.addEventListener('click', onOpenHomePage);
 $savesNavButton.addEventListener('click', onOpenSavesPage);
+
 views$['home-container'].addEventListener('click', onListEntryClicked);
 views$['single-entry-container'].addEventListener(
   'click',
   onSingleEntryContainerClicked,
 );
+views$['saves-container'].addEventListener('click', onListEntryClicked);
 
-initHomePage(GET_TYPE);
+initSavesPage(GET_TYPE);
 for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
+console.log('view', data.view);
+
+initHomePage(GET_TYPE);
+
+switch (data.view) {
+  case 'single-entry-container':
+    loadSingleEntry(data.singleEntry);
+    break;
+  case 'saves-container':
+    console.log('passes');
+    initSavesPage(GET_TYPE);
+    break;
+}
+// if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
 
 changeView(data.view, true);
 scrollTo(data.scrollPositions[data.view]);
