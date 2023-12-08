@@ -2,21 +2,21 @@
 // https://lldev.thespacedevs.com/2.2.0/launcher/ID/
 const GET_TYPE = 'local';
 
-
+const $main = document.querySelector('main');
 
 const $homeContainer = document.querySelector('#home-container');
 const $savesContainer = $homeContainer.cloneNode(true);
 $savesContainer.id = 'saves-container';
 const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 
-
-
 const $homeNavButton = document.querySelector('#nav-bar-home');
 const $savesNavButton = document.querySelector('#nav-bar-saves');
 
 const $singleEntry = document.querySelector('.single-entry');
 const $singleEntryImage = document.querySelector('.single-entry img');
-const $singleEntryInfoContainer = document.querySelector('.single-entry-info-container',);
+const $singleEntryInfoContainer = document.querySelector(
+  '.single-entry-info-container',
+);
 
 const root = document.querySelector(':root');
 const computedRoot = getComputedStyle(root);
@@ -25,10 +25,13 @@ const descriptionFontSize = computedRoot.getPropertyValue(
   '--description-font-size',
 );
 
-const $mainTableTemplate = document.querySelector('#main-table').cloneNode(true);
+const $mainTableTemplate = document
+  .querySelector('#main-table')
+  .cloneNode(true);
 const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
-const $saveButtonTemplate = document.querySelector('.save-button').cloneNode(true);
-
+const $saveButtonTemplate = document
+  .querySelector('.save-button')
+  .cloneNode(true);
 
 $homeContainer.parentElement.append($savesContainer);
 document.querySelector('.list-entry').remove();
