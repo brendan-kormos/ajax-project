@@ -18,9 +18,11 @@ const descriptionFontSize = computedRoot.getPropertyValue(
   '--description-font-size',
 );
 
-const $mainTableTemplate = document.querySelector('#main-table');
+const $mainTableTemplate = document
+  .querySelector('#main-table')
+  .cloneNode(true);
 
-const $tableRowTemplate = document.querySelector('.table-row');
+const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
 
 console.log(descriptionFontSize);
 
@@ -113,6 +115,18 @@ function createTableRow(text1, text2) {
   return $newRow;
 }
 
+function isUTCDateFormat(str) {
+  const utcDatePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+  return utcDatePattern.test(str);
+}
+
+function humanizeDate(utcDateString) {
+  //date example: '2018-12-05T18:16:16Z';
+  const utcDate = new Date(utcDateString);
+  const localDateString = utcDate.toLocaleString(); // Use the default options
+  return localDateString;
+}
+
 function createTextEntryForSingle(text) {
   const $newTextDiv = document.createElement('p');
   $newTextDiv.textContent = text;
@@ -140,6 +154,11 @@ const launcherConfig_Order = [
   'failed_landings',
 ];
 function loadSingleEntry(entry) {
+  data.singleEntry = entry
+  for (const child of Array.from($singleEntryInfoContainer.children)) {
+    $singleEntryInfoContainer.removeChild(child);
+  }
+
   $singleEntryImage.src = entry.image_url;
   const $newMainTable = $mainTableTemplate.cloneNode(true);
   const $newMainTbody = $newMainTable.querySelector('tbody');
@@ -154,38 +173,19 @@ function loadSingleEntry(entry) {
   $newHeader2.style['font-size'] = header2FontSize;
   $singleEntryInfoContainer.append($newHeader2);
 
-  // let $divider = createDivider();
-  // $singleEntryInfoContainer.append($divider);
-
-  const entryDetails = entry.details;
-
-  // let $details = createTextEntryForSingle();
-  // $details.textContent = entry.launcher_config.description;
-  // $details.style['font-size'] = header2FontSize;
-  // $singleEntryInfoContainer.append($details);
-
   let $divider = createDivider();
   $singleEntryInfoContainer.append($divider);
 
-  // $divider = createDivider();
-  // $singleEntryInfoContainer.append($divider);
-
-  // serial information header
   const $serialHeader = document.createElement('h3');
   $serialHeader.id = 'serial-info-header';
   $serialHeader.textContent = 'Serial Information';
   $singleEntryInfoContainer.append($serialHeader);
 
-  // let $details = createTextEntryForSingle();
-  // $details.id = "serial-details"
-  // $details.textContent = entry.details;
-  // $details.style['font-size'] = header2FontSize;
-  // $singleEntryInfoContainer.append($details);
-
   // main order table
   $singleEntryInfoContainer.append($newMainTable);
   main_Order.forEach(function (value) {
-    const $tr = createTableRow(humanize(value), entry[value]);
+    const formatted = isUTCDateFormat(entry[value]) ? humanizeDate(entry[value]) : entry[value];
+    const $tr = createTableRow(humanize(value), formatted);
     $newMainTbody.append($tr);
   });
 
@@ -194,16 +194,12 @@ function loadSingleEntry(entry) {
   $launcherConfigHeader.textContent = 'Launcher Config Information';
   $singleEntryInfoContainer.append($launcherConfigHeader);
 
-
   launcherConfig_Order.forEach(function (value) {
-    const $tr = createTableRow(humanize(value), entry.launcher_config[value]);
+    const formatted = isUTCDateFormat(entry.launcher_config[value]) ? humanizeDate(entry[value]) : entry.launcher_config[value];
+    const $tr = createTableRow(humanize(value), formatted);
     $launcherConfigTbody.append($tr);
   });
   $singleEntryInfoContainer.append($launcherConfigTable);
-
-  // const $launcherConfigText = createTextEntryForSingle(entry.launcher_config.description)
-  // $launcherConfigText.style["font-size"] = header2FontSize
-  // $singleEntryInfoContainer.append($launcherConfigText)
 }
 
 function onListEntryClicked(event) {
@@ -228,7 +224,7 @@ function onListEntryClicked(event) {
     });
     singleEntryRequest = xhr;
   } else if (GET_TYPE === 'local') {
-    loadSingleEntry(singleEntryJSON);
+    loadSingleEntry(data.singleEntry || singleEntryJSON);
   }
 
   changeView('single-entry-container');
@@ -242,5 +238,5 @@ for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-if (data.view === 'single-entry-container') loadSingleEntry(singleEntryJSON);
+if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry || singleEntryJSON);
 changeView(data.view, true);
