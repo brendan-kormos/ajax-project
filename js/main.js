@@ -24,8 +24,6 @@ const $mainTableTemplate = document
 
 const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
 
-console.log(descriptionFontSize);
-
 const $main = document.querySelector('main');
 
 import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
@@ -154,7 +152,7 @@ const launcherConfig_Order = [
   'failed_landings',
 ];
 function loadSingleEntry(entry) {
-  data.singleEntry = entry
+  data.singleEntry = entry;
   for (const child of Array.from($singleEntryInfoContainer.children)) {
     $singleEntryInfoContainer.removeChild(child);
   }
@@ -184,7 +182,9 @@ function loadSingleEntry(entry) {
   // main order table
   $singleEntryInfoContainer.append($newMainTable);
   main_Order.forEach(function (value) {
-    const formatted = isUTCDateFormat(entry[value]) ? humanizeDate(entry[value]) : entry[value];
+    const formatted = isUTCDateFormat(entry[value])
+      ? humanizeDate(entry[value])
+      : entry[value];
     const $tr = createTableRow(humanize(value), formatted);
     $newMainTbody.append($tr);
   });
@@ -195,7 +195,9 @@ function loadSingleEntry(entry) {
   $singleEntryInfoContainer.append($launcherConfigHeader);
 
   launcherConfig_Order.forEach(function (value) {
-    const formatted = isUTCDateFormat(entry.launcher_config[value]) ? humanizeDate(entry[value]) : entry.launcher_config[value];
+    const formatted = isUTCDateFormat(entry.launcher_config[value])
+      ? humanizeDate(entry[value])
+      : entry.launcher_config[value];
     const $tr = createTableRow(humanize(value), formatted);
     $launcherConfigTbody.append($tr);
   });
@@ -209,7 +211,6 @@ function onListEntryClicked(event) {
   const $listEntry = $target.closest('.list-entry');
   if (!$listEntry) return;
   if (singleEntryRequest) {
-    console.log(singleEntryRequest);
     singleEntryRequest.abort();
     singleEntryRequest = null;
   }
@@ -238,5 +239,6 @@ for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry || singleEntryJSON);
+if (data.view === 'single-entry-container')
+  loadSingleEntry(data.singleEntry || singleEntryJSON);
 changeView(data.view, true);
