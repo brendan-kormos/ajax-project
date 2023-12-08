@@ -4,8 +4,11 @@ const GET_TYPE = 'local';
 
 const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 
-const $listContainer = document.querySelector('.masonry-holder');
-const $homeNavButton = document.querySelector('.nav-bar-home');
+const $homeContainer = document.querySelector('#home-container');
+const $savesContainer = $homeContainer.cloneNode(true);
+$savesContainer.id = 'saves-container'
+const $homeNavButton = document.querySelector('#nav-bar-home');
+const $savesNavButton = document.querySelector('#nav-bar-saves');
 const $singleEntry = document.querySelector('.single-entry');
 const $singleEntryImage = document.querySelector('.single-entry img');
 const root = document.querySelector(':root');
@@ -29,6 +32,7 @@ const $saveButtonTemplate = document
   .querySelector('.save-button')
   .cloneNode(true);
 const $main = document.querySelector('main');
+$homeContainer.parentElement.append($savesContainer);
 document.querySelector('.list-entry').remove();
 document.querySelector('.table-row').remove();
 
@@ -61,7 +65,8 @@ let singleEntryRequest = null;
 
 const views$ = {
   'single-entry-container': document.querySelector('#single-entry-container'),
-  'home-container': document.querySelector('#home-container'),
+  'home-container': $homeContainer,
+  'saves-container': $savesContainer,
 };
 
 function ajaxGET(url) {
@@ -114,11 +119,12 @@ function renderListEntry(entry) {
 function initHomePage(retrieval) {
   const appendNodes = (dataEntry) => {
     const $entry = renderListEntry(dataEntry);
-    $listContainer.append($entry);
+    $homeContainer.append($entry);
     if (data.saves[dataEntry.id.toString()]) {
       setSaveIcon($entry.querySelector('.save-button-i'), true);
     }
   };
+  newSelectedText($homeNavButton);
 
   if (retrieval === 'local' && data.cachedIDs.length > 0) {
     for (let i = 1; i < data.cachedIDs.length; i++) {
@@ -140,6 +146,31 @@ function initHomePage(retrieval) {
   }
 }
 
+function initSavesPage(retrieval) {
+  const appendNodes = (dataEntry) => {
+    const $entry = renderListEntry(dataEntry);
+    $homeContainer.append($entry);
+    if (data.saves[dataEntry.id.toString()]) {
+      setSaveIcon($entry.querySelector('.save-button-i'), true);
+    }
+  };
+
+  const $container = views$['saves-container'];
+
+  let index = 0;
+  for (const child of Array.from($container.children)) {
+    $container.removeChild(child);
+  }
+  for (const id in data.saves) {
+    const entry = data.saves[id];
+    const $entry = renderListEntry(entry);
+    $container.append($entry);
+    setSaveIcon($entry.querySelector('.save-button-i'), true);
+  }
+
+  newSelectedText($savesNavButton);
+}
+
 function humanize(str) {
   let i,
     frags = str.split('_');
@@ -149,7 +180,16 @@ function humanize(str) {
   return frags.join(' ');
 }
 
+function newSelectedText($target) {
+  document.querySelectorAll('.nav-bar > a').forEach(function ($element) {
+    if ($element === $target) {
+      $element.classList.add('selected-text');
+    } else $element.classList.remove('selected-text');
+  });
+}
+
 function onOpenHomePage(event) {
+  const $target = event.target;
   const $container = views$['home-container'];
   for (let i = 0; i < $container.children.length; i++) {
     const $entry = $container.children[i];
@@ -161,7 +201,13 @@ function onOpenHomePage(event) {
     }
   }
 
+  newSelectedText($target);
   if (data.view !== 'home-container') changeView('home-container');
+}
+
+function onOpenSavesPage(event) {
+  initSavesPage(GET_TYPE);
+  if (data.view !== 'saves-container') changeView('saves-container');
 }
 
 function createDivider() {
@@ -197,6 +243,7 @@ function createTextEntryForSingle(text) {
 }
 
 function loadSingleEntry(entry) {
+  newSelectedText();
   scrollTo(0);
   data.singleEntry = entry;
 
@@ -276,6 +323,7 @@ function onListEntryClicked(event) {
   const classList = $target.classList;
   const tagName = $target.tagName;
   const $listEntry = $target.closest('.list-entry');
+  const $container = $target.closest('.masonry-holder')
   if (!$listEntry) return;
   if (classList.contains('save-button-i')) {
     //save
@@ -286,6 +334,9 @@ function onListEntryClicked(event) {
     //unsave
     setSaveIcon($target, false);
     unsaveEntry($listEntry.dataset.id);
+    if($container.id === 'saves-container'){
+      $listEntry.parentElement.removeChild($listEntry)
+    }
     return;
   }
   if (singleEntryRequest) {
@@ -330,18 +381,29 @@ function onSingleEntryContainerClicked(event) {
 }
 
 $homeNavButton.addEventListener('click', onOpenHomePage);
+$savesNavButton.addEventListener('click', onOpenSavesPage);
+
 views$['home-container'].addEventListener('click', onListEntryClicked);
 views$['single-entry-container'].addEventListener(
   'click',
   onSingleEntryContainerClicked,
 );
+views$['saves-container'].addEventListener('click', onListEntryClicked);
 
-initHomePage(GET_TYPE);
+initSavesPage(GET_TYPE);
 for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
+initHomePage(GET_TYPE);
+switch (data.view) {
+  case 'single-entry-container':
+    loadSingleEntry(data.singleEntry);
+    break;
+  case 'saves-container':
+    initSavesPage(GET_TYPE);
+    break;
+}
 
 changeView(data.view, true);
 scrollTo(data.scrollPositions[data.view]);

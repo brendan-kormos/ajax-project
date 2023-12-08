@@ -10,8 +10,16 @@
 }
 
 :root {
+  --nav-bar-background-color: #0b0b0b;
+  --background-color-1: #0b0b0b;
   --header-2-font-size: 24px;
   --description-font-size: 16px;
+  --unselected-nav-text-color: rgba(255, 255, 255, 0.692);
+  --unselected-nav-text-color-when-hovering: rgba(255, 255, 255, 0.905);
+  --other-unselected-nav-text-color-when-hovering: rgba(255, 255, 255, 0.75);
+  --nav-bar-font-size: 30px;
+  --primary-font-family: nats;
+  --nav-bar-font-color: white;
 }
 
 .hidden {
@@ -19,14 +27,43 @@
 }
 
 body {
-  background: #0b0b0b;
+  background: var(--background-color-1);
 }
 
-.nav-bar-home {
+.nav-bar-container {
+  background-color: var(--nav-bar-background-color);
+  border-bottom: solid 1px rgba(255, 255, 255, 0.13);
+  margin-bottom: 20px;
+}
+
+.nav-bar-text-item {
+  color: var(--unselected-nav-text-color);
+  font-size: var(--nav-bar-font-size);
+  font-family: var(--primary-font-family);
+  line-height: var(--nav-bar-font-size);
+  position: relative;
+}
+
+.nav-bar-text-item:hover::after {
+  border-top: 2px solid rgba(255, 255, 255, 0.514);
+  content: "";
+  top: calc(var(--nav-bar-font-size) + 16px);
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.nav-bar-text-item:hover {
+  color: var(--unselected-nav-text-color-when-hovering);
+}
+
+#nav-bar-saves:hover ~ a:not(.selected-text),
+#nav-bar-home:hover ~ a:not(.selected-text) {
+  color: var(--other-unselected-nav-text-color-when-hovering);
+}
+
+.selected-text {
   color: white;
-  font-size: 30px;
-  font-family: NATS;
-  line-height: 30px;
 }
 
 .masonry-blocks {
@@ -39,7 +76,7 @@ body {
   object-fit: contain;
   position: relative;
   border-radius: 8px;
-  box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 4px 0 rgba(255, 255, 255, 0.05);
 }
 
 .entry-image-a {
@@ -56,7 +93,7 @@ body {
   right: 0;
   left: 0;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
-  font-family: NATS;
+  font-family: var(--primary-font-family);
   font-size: 24px;
   line-height: 24px;
   border-radius: 0 8px 8px 0;
@@ -81,7 +118,7 @@ body {
 
 .single-entry-info-container {
   color: white;
-  font-family: NATS;
+  font-family: var(--primary-font-family);
   font-size: 16px;
   font-weight: 400;
   display: flex;
@@ -162,7 +199,7 @@ button {
   padding: none;
 }
 
-a:hover,
-button:hover {
+button:hover,
+a:hover {
   cursor: pointer;
 }
