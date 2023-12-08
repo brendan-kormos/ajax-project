@@ -4,7 +4,8 @@ const GET_TYPE = 'local';
 
 const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 
-const $listContainer = document.querySelector('.masonry-holder');
+const $homeContainer = document.querySelector('#home-container');
+const $savesContainer = $homeContainer.cloneNode(true);
 const $homeNavButton = document.querySelector('#nav-bar-home');
 const $singleEntry = document.querySelector('.single-entry');
 const $singleEntryImage = document.querySelector('.single-entry img');
@@ -12,6 +13,9 @@ const root = document.querySelector(':root');
 const $singleEntryInfoContainer = document.querySelector(
   '.single-entry-info-container',
 );
+
+
+
 
 const computedRoot = getComputedStyle(root);
 const header2FontSize = computedRoot.getPropertyValue('--header-2-font-size');
@@ -29,6 +33,7 @@ const $saveButtonTemplate = document
   .querySelector('.save-button')
   .cloneNode(true);
 const $main = document.querySelector('main');
+$homeContainer.parentElement.append($savesContainer)
 document.querySelector('.list-entry').remove();
 document.querySelector('.table-row').remove();
 
@@ -61,7 +66,8 @@ let singleEntryRequest = null;
 
 const views$ = {
   'single-entry-container': document.querySelector('#single-entry-container'),
-  'home-container': document.querySelector('#home-container'),
+  'home-container': $homeContainer,
+  'saves-container': $savesContainer
 };
 
 function ajaxGET(url) {
@@ -114,7 +120,7 @@ function renderListEntry(entry) {
 function initHomePage(retrieval) {
   const appendNodes = (dataEntry) => {
     const $entry = renderListEntry(dataEntry);
-    $listContainer.append($entry);
+    $homeContainer.append($entry);
     if (data.saves[dataEntry.id.toString()]) {
       setSaveIcon($entry.querySelector('.save-button-i'), true);
     }

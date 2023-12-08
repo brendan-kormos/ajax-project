@@ -10,6 +10,7 @@ let data = {
   scrollPositions: {
     'home-container': 0,
     'single-entry-container': 0,
+    'saves-container': 0
   },
 };
 
