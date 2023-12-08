@@ -5,7 +5,16 @@
 }
 
 .nav-bar {
-  margin: 0;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 16px 0;
+}
+
+.nav-bar-text-item {
+  padding: 0 8px
+
+  /* margin: 0 20px; */
 }
 
 .center-children {

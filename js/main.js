@@ -5,7 +5,7 @@ const GET_TYPE = 'local';
 const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 
 const $listContainer = document.querySelector('.masonry-holder');
-const $homeNavButton = document.querySelector('.nav-bar-home');
+const $homeNavButton = document.querySelector('#nav-bar-home');
 const $singleEntry = document.querySelector('.single-entry');
 const $singleEntryImage = document.querySelector('.single-entry img');
 const root = document.querySelector(':root');
