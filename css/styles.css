@@ -10,13 +10,15 @@
 }
 
 :root {
-  --nav-bar-background-color: rgb(7, 7, 7);
+  --nav-bar-background-color: #0b0b0b;
   --background-color-1: #0b0b0b;
   --header-2-font-size: 24px;
   --description-font-size: 16px;
   --unselected-nav-text-color: rgba(255, 255, 255, 0.692);
+  --unselected-nav-text-color-when-hovering: rgba(255, 255, 255, 0.755);
   --nav-bar-font-size: 30px;
   --primary-font-family: nats;
+  --nav-bar-font-color: white;
 }
 
 .hidden {
@@ -44,15 +46,16 @@ body {
 .nav-bar-text-item:hover::after {
   border-top: 2px solid rgba(255, 255, 255, 0.514);
   content: "";
-  top: calc(var(--nav-bar-font-size) + 8px);
+  top: calc(var(--nav-bar-font-size) + 16px);
   left: 0;
   position: absolute;
   width: 100%;
 }
 
-#nav-bar-home:hover ~ a {
-  color: var(--unselected-nav-text-color);
-}
+/* #nav-bar-saves:hover ~ a:not(.selected-text),
+#nav-bar-home:hover ~ a:not(.selected-text) {
+  color: var(--unselected-nav-text-color-when-hovering);
+} */
 
 .selected-text {
   color: white;

@@ -7,15 +7,13 @@ const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 const $homeContainer = document.querySelector('#home-container');
 const $savesContainer = $homeContainer.cloneNode(true);
 const $homeNavButton = document.querySelector('#nav-bar-home');
+const $savesNavButton = document.querySelector('#nav-bar-saves');
 const $singleEntry = document.querySelector('.single-entry');
 const $singleEntryImage = document.querySelector('.single-entry img');
 const root = document.querySelector(':root');
 const $singleEntryInfoContainer = document.querySelector(
   '.single-entry-info-container',
 );
-
-
-
 
 const computedRoot = getComputedStyle(root);
 const header2FontSize = computedRoot.getPropertyValue('--header-2-font-size');
@@ -33,7 +31,7 @@ const $saveButtonTemplate = document
   .querySelector('.save-button')
   .cloneNode(true);
 const $main = document.querySelector('main');
-$homeContainer.parentElement.append($savesContainer)
+$homeContainer.parentElement.append($savesContainer);
 document.querySelector('.list-entry').remove();
 document.querySelector('.table-row').remove();
 
@@ -67,7 +65,7 @@ let singleEntryRequest = null;
 const views$ = {
   'single-entry-container': document.querySelector('#single-entry-container'),
   'home-container': $homeContainer,
-  'saves-container': $savesContainer
+  'saves-container': $savesContainer,
 };
 
 function ajaxGET(url) {
@@ -155,7 +153,17 @@ function humanize(str) {
   return frags.join(' ');
 }
 
+function newSelectedText($target) {
+  document.querySelectorAll('.nav-bar > a').forEach(function ($element) {
+    console.log($element === $target);
+    if ($element === $target) {
+      $element.classList.add('selected-text');
+    } else $element.classList.remove('selected-text');
+  });
+}
+
 function onOpenHomePage(event) {
+  const $target = event.target
   const $container = views$['home-container'];
   for (let i = 0; i < $container.children.length; i++) {
     const $entry = $container.children[i];
@@ -167,7 +175,24 @@ function onOpenHomePage(event) {
     }
   }
 
+  newSelectedText($target);
   if (data.view !== 'home-container') changeView('home-container');
+}
+
+function onOpenSavesPage(event) {
+  const $target = event.target;
+  const $container = views$['saves-container'];
+
+  let index = 0;
+  for (let i = 0; i < $container.children.length; i++) {
+    const $entry = $container.children[index];
+    if ($entry.dataset.id) {
+      console.log('removing item', $entry);
+      $entry.remove();
+    } else index++;
+  }
+  newSelectedText($target)
+  if (data.view !== 'saves-container') changeView('saves-container');
 }
 
 function createDivider() {
@@ -336,6 +361,7 @@ function onSingleEntryContainerClicked(event) {
 }
 
 $homeNavButton.addEventListener('click', onOpenHomePage);
+$savesNavButton.addEventListener('click', onOpenSavesPage);
 views$['home-container'].addEventListener('click', onListEntryClicked);
 views$['single-entry-container'].addEventListener(
   'click',
