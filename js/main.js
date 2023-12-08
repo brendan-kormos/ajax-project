@@ -12,6 +12,7 @@ const $singleEntryInfoContainer = document.querySelector(
   '.single-entry-info-container',
 );
 
+
 const computedRoot = getComputedStyle(root);
 const header2FontSize = computedRoot.getPropertyValue('--header-2-font-size');
 const descriptionFontSize = computedRoot.getPropertyValue(
@@ -23,7 +24,7 @@ const $mainTableTemplate = document
   .cloneNode(true);
 
 const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
-
+const $saveButtonTemplate = document.querySelector('.save-button').cloneNode(true)
 const $main = document.querySelector('main');
 
 // import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
@@ -186,6 +187,11 @@ function loadSingleEntry(entry) {
   $newHeader2.textContent = `${entry.launcher_config.full_name} ${entry.serial_number}`;
   $newHeader2.style['font-size'] = header2FontSize;
   $singleEntryInfoContainer.append($newHeader2);
+
+  const $saveButton = $saveButtonTemplate.cloneNode(true)
+  $saveButton.classList.remove('lock-top-right')
+  $saveButton.style["margin-left"] = "10px"
+  $newHeader2.append($saveButton)
 
   let $divider = createDivider();
   $singleEntryInfoContainer.append($divider);
