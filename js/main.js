@@ -1,6 +1,6 @@
 // https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20
 // https://lldev.thespacedevs.com/2.2.0/launcher/ID/
-const GET_TYPE = 'request';
+const GET_TYPE = 'local';
 
 const $listEntry = document.querySelector('.list-entry');
 const $listContainer = document.querySelector('.masonry-holder');
@@ -11,7 +11,6 @@ const root = document.querySelector(':root');
 const $singleEntryInfoContainer = document.querySelector(
   '.single-entry-info-container',
 );
-
 
 const computedRoot = getComputedStyle(root);
 const header2FontSize = computedRoot.getPropertyValue('--header-2-font-size');
@@ -24,7 +23,9 @@ const $mainTableTemplate = document
   .cloneNode(true);
 
 const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
-const $saveButtonTemplate = document.querySelector('.save-button').cloneNode(true)
+const $saveButtonTemplate = document
+  .querySelector('.save-button')
+  .cloneNode(true);
 const $main = document.querySelector('main');
 
 // import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
@@ -81,12 +82,17 @@ function initHomePage(retrieval) {
   const appendNodes = (dataEntry) => {
     const $entry = renderListEntry(dataEntry);
     $listContainer.append($entry);
-    if (data.saves[dataEntry.id.toString()]){
-      setSaveIcon($entry.querySelector('.save-button-i'), true)
+    if (data.saves[dataEntry.id.toString()]) {
+      setSaveIcon($entry.querySelector('.save-button-i'), true);
     }
   };
 
-  if (retrieval === 'request') {
+  if (retrieval === 'local' && data.cachedIDs.length > 0) {
+    for (let i = 1; i <data.cachedIDs.length; i++) {
+      const dataEntry = data.cachedIDs[i];
+      appendNodes(dataEntry);
+    }
+  } else if (retrieval === 'request') {
     const xhr = ajaxGET(
       'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
     );
@@ -95,14 +101,9 @@ function initHomePage(retrieval) {
       for (let i = 0; i < response.results.length; i++) {
         const dataEntry = response.results[i];
         data.cachedIDs[dataEntry.id] = dataEntry;
-        appendNodes(dataEntry)
+        appendNodes(dataEntry);
       }
     });
-  } else if (retrieval === 'local') {
-    for (let i = 0; i < data.cachedIDs.results.length; i++) {
-      const dataEntry = cachedIDs.results[i];
-      appendNodes(dataEntry)
-    }
   }
 }
 
@@ -188,10 +189,11 @@ function loadSingleEntry(entry) {
   $newHeader2.style['font-size'] = header2FontSize;
   $singleEntryInfoContainer.append($newHeader2);
 
-  const $saveButton = $saveButtonTemplate.cloneNode(true)
-  $saveButton.classList.remove('lock-top-right')
-  $saveButton.style["margin-left"] = "10px"
-  $newHeader2.append($saveButton)
+  const $saveButton = $saveButtonTemplate.cloneNode(true);
+  $saveButton.classList.remove('lock-top-right');
+  $saveButton.style['margin-left'] = '10px';
+  setSaveIcon($saveButton.children[0], !!data.saves[entry.id]);
+  $newHeader2.append($saveButton);
 
   let $divider = createDivider();
   $singleEntryInfoContainer.append($divider);
@@ -247,12 +249,12 @@ function onListEntryClicked(event) {
   const $listEntry = $target.closest('.list-entry');
   if (!$listEntry) return;
   if (classList.contains('save-button-i')) {
+    //save
     setSaveIcon($target, true);
     saveEntry($listEntry.dataset.id);
-    console.log('save button');
     return;
   } else if (classList.contains('unsave-button-i')) {
-    console.log('unsave button');
+    //unsave
     return;
   }
   if (singleEntryRequest) {
@@ -260,7 +262,11 @@ function onListEntryClicked(event) {
     singleEntryRequest = null;
   }
 
-  if (GET_TYPE === 'request') {
+  if (GET_TYPE === 'local' && data.singleEntry) {
+    //prefer local
+    loadSingleEntry(data.singleEntry);
+  } else {
+    //request
     const xhr = ajaxGET(
       `https://lldev.thespacedevs.com/2.2.0/launcher/${$listEntry.dataset.id}/`,
     );
@@ -270,15 +276,32 @@ function onListEntryClicked(event) {
       loadSingleEntry(response);
     });
     singleEntryRequest = xhr;
-  } else if (GET_TYPE === 'local') {
-    loadSingleEntry(data.singleEntry);
   }
 
   changeView('single-entry-container');
 }
 
+function onSingleEntryContainerClicked(event) {
+  const $target = event.target;
+  const classList = $target.classList;
+  const tagName = $target.tagName;
+  if (classList.contains('save-button-i')) {
+    //save
+    setSaveIcon($target, true);
+    saveEntry(data.singleEntry.id);
+    return;
+  } else if (classList.contains('unsave-button-i')) {
+    //unsave
+    return;
+  }
+}
+
 $homeNavButton.addEventListener('click', onOpenHomePage);
 views$['home-container'].addEventListener('click', onListEntryClicked);
+views$['single-entry-container'].addEventListener(
+  'click',
+  onSingleEntryContainerClicked,
+);
 
 initHomePage(GET_TYPE);
 for (const child of $main.children) {
