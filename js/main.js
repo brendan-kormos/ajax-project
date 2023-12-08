@@ -6,7 +6,7 @@ const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 
 const $homeContainer = document.querySelector('#home-container');
 const $savesContainer = $homeContainer.cloneNode(true);
-$savesContainer.id = 'saves-container'
+$savesContainer.id = 'saves-container';
 const $homeNavButton = document.querySelector('#nav-bar-home');
 const $savesNavButton = document.querySelector('#nav-bar-saves');
 const $singleEntry = document.querySelector('.single-entry');
@@ -105,10 +105,33 @@ function scrollTo(pos) {
   });
 }
 
+let requestDebounce = false;
+function requestMoreEntries(callback) {
+  if (requestDebounce) return;
+  requestDebounce = true;
+  setTimeout(() => {
+    requestDebounce = false;
+  }, 2 * 1000);
+  const offset = data.offset;
+  const limit = data.limit;
+  const xhr = ajaxGET(
+    `https://lldev.thespacedevs.com/2.2.0/launcher/?limit=${limit}&offset=${offset}`,
+  );
+  xhr.addEventListener('load', function () {
+    const response = xhr.response;
+    if (xhr.status == 200) {
+      data.offset += limit;
+      callback(response);
+    }
+  });
+}
+
 function renderListEntry(entry) {
+  if (!entry) return;
   const $clone = $listEntry.cloneNode(true);
   $clone.classList.remove('hidden');
-  $clone.querySelector('img').src = entry.image_url;
+  $clone.querySelector('img').src =
+    entry.image_url || 'images/404-Page-Not-Found.png';
   $clone
     .querySelector('.entry-image-a')
     .setAttribute('data-serial', entry.serial_number);
@@ -116,14 +139,25 @@ function renderListEntry(entry) {
   return $clone;
 }
 
+const appendNodes = (dataEntry) => {
+  if (!dataEntry) return;
+  const $entry = renderListEntry(dataEntry);
+  $homeContainer.append($entry);
+  if (data.saves[dataEntry.id.toString()]) {
+    setSaveIcon($entry.querySelector('.save-button-i'), true);
+  }
+};
+
+function appendNewEntries(response) {
+  for (let i = 0; i < response.results.length; i++) {
+    const dataEntry = response.results[i];
+
+    data.cachedIDs[dataEntry.id] = dataEntry;
+    appendNodes(dataEntry);
+  }
+}
+
 function initHomePage(retrieval) {
-  const appendNodes = (dataEntry) => {
-    const $entry = renderListEntry(dataEntry);
-    $homeContainer.append($entry);
-    if (data.saves[dataEntry.id.toString()]) {
-      setSaveIcon($entry.querySelector('.save-button-i'), true);
-    }
-  };
   newSelectedText($homeNavButton);
 
   if (retrieval === 'local' && data.cachedIDs.length > 0) {
@@ -132,16 +166,9 @@ function initHomePage(retrieval) {
       appendNodes(dataEntry);
     }
   } else {
-    const xhr = ajaxGET(
-      'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
-    );
-    xhr.addEventListener('load', function () {
-      const response = xhr.response;
-      for (let i = 0; i < response.results.length; i++) {
-        const dataEntry = response.results[i];
-        data.cachedIDs[dataEntry.id] = dataEntry;
-        appendNodes(dataEntry);
-      }
+    requestMoreEntries(function (response) {
+      //runs on load
+      appendNewEntries(response);
     });
   }
 }
@@ -247,7 +274,7 @@ function loadSingleEntry(entry) {
   scrollTo(0);
   data.singleEntry = entry;
 
-  $singleEntryImage.src = entry.image_url;
+  $singleEntryImage.src = entry.image_url || 'images/404-Page-Not-Found.png';
   const $newMainTable = $mainTableTemplate.cloneNode(true);
   const $newMainTbody = $newMainTable.querySelector('tbody');
   $newMainTable.classList.remove('hidden');
@@ -281,7 +308,10 @@ function loadSingleEntry(entry) {
     const formatted = isUTCDateFormat(entry[value])
       ? humanizeDate(entry[value])
       : entry[value];
-    const $tr = createTableRow(humanize(value), formatted);
+    const $tr = createTableRow(
+      humanize(value),
+      formatted === '' || formatted === undefined ? 'N/A' : formatted,
+    );
     $newMainTbody.append($tr);
   });
 
@@ -294,7 +324,7 @@ function loadSingleEntry(entry) {
     const formatted = isUTCDateFormat(entry.launcher_config[value])
       ? humanizeDate(entry[value])
       : entry.launcher_config[value];
-    const $tr = createTableRow(humanize(value), formatted);
+    const $tr = createTableRow(humanize(value), (formatted === '' || formatted === undefined) ? "N/A" : formatted );
     $launcherConfigTbody.append($tr);
   });
   $singleEntryInfoContainer.append($launcherConfigTable);
@@ -323,7 +353,7 @@ function onListEntryClicked(event) {
   const classList = $target.classList;
   const tagName = $target.tagName;
   const $listEntry = $target.closest('.list-entry');
-  const $container = $target.closest('.masonry-holder')
+  const $container = $target.closest('.masonry-holder');
   if (!$listEntry) return;
   if (classList.contains('save-button-i')) {
     //save
@@ -334,8 +364,8 @@ function onListEntryClicked(event) {
     //unsave
     setSaveIcon($target, false);
     unsaveEntry($listEntry.dataset.id);
-    if($container.id === 'saves-container'){
-      $listEntry.parentElement.removeChild($listEntry)
+    if ($container.id === 'saves-container') {
+      $listEntry.parentElement.removeChild($listEntry);
     }
     return;
   }
@@ -380,6 +410,47 @@ function onSingleEntryContainerClicked(event) {
   }
 }
 
+function isWindowScrollable() {
+  const windowHeight =
+    window.innerHeight || document.documentElement.clientHeight;
+  const documentHeight = Math.max(
+    document.body.scrollHeight,
+    document.body.offsetHeight,
+    document.documentElement.clientHeight,
+    document.documentElement.scrollHeight,
+    document.documentElement.offsetHeight,
+  );
+
+  return documentHeight > windowHeight;
+}
+
+function isBottomOfPage() {
+  const scrollTop = window.scrollY || window.pageYOffset;
+  const scrollHeight = document.documentElement.scrollHeight;
+  const clientHeight = window.innerHeight;
+  return scrollTop + clientHeight >= scrollHeight;
+}
+
+let scrollIntervalTimer = null;
+function handleScrollAttempt(event) {
+  if (event.deltaY < 0 || !isBottomOfPage()) return;
+
+  if (requestDebounce && scrollIntervalTimer === null) {
+    scrollIntervalTimer = setInterval(() => {
+      clearInterval(scrollIntervalTimer);
+      scrollIntervalTimer = null;
+      requestMoreEntries(function (response) {
+        appendNewEntries(response);
+      });
+    }, 2 * 1000);
+    return;
+  }
+  requestMoreEntries(function (response) {
+    appendNewEntries(response);
+  });
+}
+
+window.addEventListener('wheel', handleScrollAttempt);
 $homeNavButton.addEventListener('click', onOpenHomePage);
 $savesNavButton.addEventListener('click', onOpenSavesPage);
 

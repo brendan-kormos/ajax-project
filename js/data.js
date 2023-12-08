@@ -7,6 +7,8 @@ let data = {
   singleEntry: null,
   saves: {},
   cachedIDs: [],
+  offset: 0,
+  limit: 15,
   scrollPositions: {
     'home-container': 0,
     'single-entry-container': 0,
@@ -21,8 +23,8 @@ function saveScrollPosition() {
 const oldData = localStorage.getItem(LOCAL_STORAGE_KEY);
 if (oldData) {
   const parsedOldData = JSON.parse(oldData);
-  if (parsedOldData.scrollPositions || parsedOldData.scrollPositions['saves-container'] !== undefined) {
-    //if it doesn't have newest feature, wipe data
+  if (parsedOldData.limit !== undefined && parsedOldData.limit === 15) {
+    // only load data if new feature is present
     data = parsedOldData;
   }
 }
