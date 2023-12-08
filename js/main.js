@@ -26,8 +26,8 @@ const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
 
 const $main = document.querySelector('main');
 
-import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
-import entries20JSON from './Entries_20.json' assert { type: 'json' };
+// import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
+// import entries20JSON from './Entries_20.json' assert { type: 'json' };
 
 let singleEntryRequest = null;
 
@@ -45,7 +45,7 @@ function ajaxGET(url) {
 }
 
 function resetSingleEntryPage() {
-  $singleEntryImage.src = "";
+  $singleEntryImage.src = '';
   for (const child of Array.from($singleEntryInfoContainer.children)) {
     $singleEntryInfoContainer.removeChild(child);
   }
@@ -69,12 +69,22 @@ function renderListEntry(entry) {
   const $clone = $listEntry.cloneNode(true);
   $clone.classList.remove('hidden');
   $clone.querySelector('img').src = entry.image_url;
-  $clone.querySelector('a').setAttribute('data-serial', entry.serial_number);
+  $clone
+    .querySelector('.entry-image-a')
+    .setAttribute('data-serial', entry.serial_number);
   $clone.setAttribute('data-id', entry.id);
   return $clone;
 }
 
 function initHomePage(retrieval) {
+  const appendNodes = (dataEntry) => {
+    const $entry = renderListEntry(dataEntry);
+    $listContainer.append($entry);
+    if (data.saves[dataEntry.id.toString()]){
+      setSaveIcon($entry.querySelector('.save-button-i'), true)
+    }
+  };
+
   if (retrieval === 'request') {
     const xhr = ajaxGET(
       'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
@@ -83,15 +93,14 @@ function initHomePage(retrieval) {
       const response = xhr.response;
       for (let i = 0; i < response.results.length; i++) {
         const dataEntry = response.results[i];
-        const $entry = renderListEntry(dataEntry);
-        $listContainer.append($entry);
+        data.cachedIDs[dataEntry.id] = dataEntry;
+        appendNodes(dataEntry)
       }
     });
   } else if (retrieval === 'local') {
-    for (let i = 0; i < entries20JSON.results.length; i++) {
-      const dataEntry = entries20JSON.results[i];
-      const $entry = renderListEntry(dataEntry);
-      $listContainer.append($entry);
+    for (let i = 0; i < data.cachedIDs.results.length; i++) {
+      const dataEntry = cachedIDs.results[i];
+      appendNodes(dataEntry)
     }
   }
 }
@@ -211,12 +220,35 @@ function loadSingleEntry(entry) {
   $singleEntryInfoContainer.append($launcherConfigTable);
 }
 
+function saveEntry(id) {
+  data.saves[id.toString()] = data.cachedIDs[id];
+}
+
+function setSaveIcon($element, save) {
+  if (save === true) {
+    $element.classList.replace('fa-regular', 'fa-solid');
+    $element.classList.replace('save-button-i', 'unsave-button-i');
+    return;
+  }
+  $element.classList.replace('fa-solid', 'fa-regular');
+  $element.classList.replace('unsave-button-i', 'save-button-i');
+}
+
 function onListEntryClicked(event) {
   const $target = event.target;
-  const $className = $target.className;
+  const classList = $target.classList;
   const tagName = $target.tagName;
   const $listEntry = $target.closest('.list-entry');
   if (!$listEntry) return;
+  if (classList.contains('save-button-i')) {
+    setSaveIcon($target, true);
+    saveEntry($listEntry.dataset.id);
+    console.log('save button');
+    return;
+  } else if (classList.contains('unsave-button-i')) {
+    console.log('unsave button');
+    return;
+  }
   if (singleEntryRequest) {
     singleEntryRequest.abort();
     singleEntryRequest = null;
@@ -228,11 +260,12 @@ function onListEntryClicked(event) {
     );
     xhr.addEventListener('load', function () {
       const response = xhr.response;
+
       loadSingleEntry(response);
     });
     singleEntryRequest = xhr;
   } else if (GET_TYPE === 'local') {
-    loadSingleEntry(data.singleEntry || singleEntryJSON);
+    loadSingleEntry(data.singleEntry);
   }
 
   changeView('single-entry-container');
@@ -246,6 +279,5 @@ for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-if (data.view === 'single-entry-container')
-  loadSingleEntry(data.singleEntry || singleEntryJSON);
+if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
 changeView(data.view, true);

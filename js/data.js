@@ -5,6 +5,8 @@ const LOCAL_STORAGE_KEY = 'ajax_project_1';
 let data = {
   view: 'home-container',
   singleEntry: null,
+  saves:{},
+  cachedIDs: []
 };
 
 const oldData = localStorage.getItem(LOCAL_STORAGE_KEY);

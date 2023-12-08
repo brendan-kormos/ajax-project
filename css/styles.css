@@ -42,11 +42,11 @@ body {
   box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05);
 }
 
-.list-entry a {
+.entry-image-a {
   position: relative;
 }
 
-.list-entry a::after {
+.entry-image-a::after {
   position: absolute;
   display: inline-block;
   content: attr(data-serial);
@@ -113,10 +113,6 @@ body {
   text-align: right;
 }
 
-/* #serial-details {
-  padding-bottom: 20px 0;
-} */
-
 .single-entry-info-container > h2 {
   padding: 10px 0;
   line-height: var(--header-2-font-size);
@@ -128,6 +124,63 @@ body {
 
 .divider {
   background-color: grey;
+}
+
+.save-button-div {
+  z-index: 1;
+  position: relative;
+}
+
+.save-button,
+.unsave-button {
+  height: fit-content;
+  width: fit-content;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
+  transform-origin: center;
+  transform: scale(1.5);
+  transition: transform 0.15s;
+  position: absolute;
+  top: 20px;
+  bottom: 0;
+  right: 20px;
+  background: none;
+  border: none;
+}
+
+/* .unsave-button-i::after {
+  content: "\f004";
+  position: absolute;
+  left: 0;
+  right: 0;
+  color: white;
+} */
+
+.save-button:hover {
+  transform: scale(2);
+}
+
+.unsave-button-i,
+.save-button-i {
+  z-index: 1;
+  color: white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/*
+.unsave-button-i-fill {
+  transform-origin: center;
+  color: white;
+  position: absolute;
+} */
+
+button {
+  background: none;
+  border: none;
+  padding: none;
 }
 
 a:hover,
