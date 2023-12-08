@@ -153,10 +153,10 @@ function onOpenHomePage(event) {
   const $container = views$['home-container'];
   for (let i = 0; i < $container.children.length; i++) {
     const $entry = $container.children[i];
-    if ($entry.dataset.id && data.saves[$entry.dataset.id.toString()]) {
+    if ($entry.dataset.id) {
       setSaveIcon(
         $entry.querySelector('.save-button-i,.unsave-button-i'),
-        true,
+        !!data.saves[$entry.dataset.id.toString()],
       );
     }
   }
@@ -257,6 +257,10 @@ function saveEntry(id) {
   data.saves[id.toString()] = data.cachedIDs[id];
 }
 
+function unsaveEntry(id) {
+  delete data.saves[id.toString()];
+}
+
 function setSaveIcon($element, save) {
   if (save === true) {
     $element.classList.replace('fa-regular', 'fa-solid');
@@ -280,6 +284,8 @@ function onListEntryClicked(event) {
     return;
   } else if (classList.contains('unsave-button-i')) {
     //unsave
+    setSaveIcon($target, false);
+    unsaveEntry($listEntry.dataset.id);
     return;
   }
   if (singleEntryRequest) {
@@ -317,6 +323,8 @@ function onSingleEntryContainerClicked(event) {
     return;
   } else if (classList.contains('unsave-button-i')) {
     //unsave
+    setSaveIcon($target, false);
+    unsaveEntry(data.singleEntry.id);
     return;
   }
 }
