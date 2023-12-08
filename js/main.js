@@ -368,19 +368,19 @@ function onListEntryClicked(event) {
     singleEntryRequest.abort();
     singleEntryRequest = null;
   }
-
-  if (GET_TYPE === 'local' && data.cachedIDs[$listEntry.dataset.id]) {
+  const id = $listEntry.dataset.id;
+  if (GET_TYPE === 'local' && data.cachedExtendedInfo[id]) {
     //prefer local
-    loadSingleEntryPage(data.cachedIDs[$listEntry.dataset.id]);
+    loadSingleEntryPage(data.cachedExtendedInfo[id]);
   } else {
     //request
-    const xhr = ajaxGET(
-      `https://lldev.thespacedevs.com/2.2.0/launcher/${$listEntry.dataset.id}/`,
-    );
+    const xhr = ajaxGET(`https://lldev.thespacedevs.com/2.2.0/launcher/${id}/`);
     xhr.addEventListener('load', function () {
       const response = xhr.response;
-
-      loadSingleEntryPage(response);
+      if (xhr.status == '200') {
+        data.cachedExtendedInfo[id] = response;
+        loadSingleEntryPage(response);
+      }
     });
     singleEntryRequest = xhr;
   }
