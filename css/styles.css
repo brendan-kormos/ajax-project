@@ -1,10 +1,10 @@
 @font-face {
   font-family: NATS;
   src:
-    url("/fonts/webfonts_NATS/NATS.ttf.woff") format("woff"),
-    url("/fonts/webfonts_NATS.ttf.svg#NATS") format("svg"),
-    url("/fonts/webfonts_NATS.ttf.eot"),
-    url("/fonts/webfonts_NATS.ttf.eot?#iefix") format("embedded-opentype");
+    url("/./fonts/webfonts_NATS/NATS.ttf.woff") format("woff"),
+    url("/./fonts/webfonts_NATS.ttf.svg#NATS") format("svg"),
+    url("/./fonts/webfonts_NATS.ttf.eot"),
+    url("/./fonts/webfonts_NATS.ttf.eot?#iefix") format("embedded-opentype");
   font-weight: normal;
   font-style: normal;
 }
