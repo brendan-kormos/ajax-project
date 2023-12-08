@@ -2,7 +2,8 @@
 // https://lldev.thespacedevs.com/2.2.0/launcher/ID/
 const GET_TYPE = 'local';
 
-const $listEntry = document.querySelector('.list-entry');
+const $listEntry = document.querySelector('.list-entry').cloneNode(true);
+
 const $listContainer = document.querySelector('.masonry-holder');
 const $homeNavButton = document.querySelector('.nav-bar-home');
 const $singleEntry = document.querySelector('.single-entry');
@@ -23,10 +24,13 @@ const $mainTableTemplate = document
   .cloneNode(true);
 
 const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
+
 const $saveButtonTemplate = document
   .querySelector('.save-button')
   .cloneNode(true);
 const $main = document.querySelector('main');
+document.querySelector('.list-entry').remove();
+document.querySelector('.table-row').remove();
 
 const main_Order = [
   'status',
@@ -146,6 +150,17 @@ function humanize(str) {
 }
 
 function onOpenHomePage(event) {
+  const $container = views$['home-container'];
+  for (let i = 0; i < $container.children.length; i++) {
+    const $entry = $container.children[i];
+    if ($entry.dataset.id && data.saves[$entry.dataset.id.toString()]) {
+      setSaveIcon(
+        $entry.querySelector('.save-button-i,.unsave-button-i'),
+        true,
+      );
+    }
+  }
+
   if (data.view !== 'home-container') changeView('home-container');
 }
 
@@ -182,7 +197,7 @@ function createTextEntryForSingle(text) {
 }
 
 function loadSingleEntry(entry) {
-  scrollTo(0)
+  scrollTo(0);
   data.singleEntry = entry;
 
   $singleEntryImage.src = entry.image_url;

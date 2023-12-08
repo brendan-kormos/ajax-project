@@ -77,8 +77,6 @@ body {
   max-height: 500px;
   object-fit: contain;
   position: relative;
-
-  /* box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05); */
 }
 
 .single-entry-info-container {
@@ -90,8 +88,6 @@ body {
   flex-direction: column;
   align-items: center;
   position: relative;
-
-  /* background-color: wheat; */
   min-height: 300px;
 }
 
@@ -143,14 +139,6 @@ body {
   border: none;
 }
 
-/* .unsave-button-i::after {
-  content: "\f004";
-  position: absolute;
-  left: 0;
-  right: 0;
-  color: white;
-} */
-
 .save-button:hover {
   transform: scale(2);
 }
@@ -167,13 +155,6 @@ body {
   bottom: 0;
   right: 20px;
 }
-
-/*
-.unsave-button-i-fill {
-  transform-origin: center;
-  color: white;
-  position: absolute;
-} */
 
 button {
   background: none;
