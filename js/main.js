@@ -85,7 +85,7 @@ function resetSingleEntryPage() {
   }
 }
 
-// nav bar text
+// nav bar text, this will pick one focused button, or in some cases, no focused buttons
 function newSelectedText($target) {
   document.querySelectorAll('.nav-bar > a').forEach(function ($element) {
     if ($element === $target) {
@@ -170,6 +170,7 @@ function appendNewEntries(response) {
 }
 
 //formatting
+// humanize will convert strings displayed as "hell_world" to "Hello World"
 function humanize(str) {
   let i,
     frags = str.split('_');
@@ -179,11 +180,13 @@ function humanize(str) {
   return frags.join(' ');
 }
 
+//check if string is in the right format to be humanized
 function isUTCDateFormat(str) {
   const utcDatePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
   return utcDatePattern.test(str);
 }
 
+// humanizeDate will be locallized and shown with a date and time of day
 function humanizeDate(utcDateString) {
   //date example: '2018-12-05T18:16:16Z';
   const utcDate = new Date(utcDateString);
@@ -191,6 +194,7 @@ function humanizeDate(utcDateString) {
   return localDateString;
 }
 
+// called once when website is opened
 function loadHomePage(retrieval) {
   newSelectedText($homeNavButton);
   if (retrieval === 'local' && data.cachedIDs.length > 0) {
@@ -206,6 +210,7 @@ function loadHomePage(retrieval) {
   }
 }
 
+// called every time the saves container is opened
 function loadSavesPage() {
   const $container = views$['saves-container'];
   let index = 0;
@@ -406,21 +411,6 @@ function onSingleEntryContainerClicked(event) {
 }
 
 // scroll to load more related functions
-function isWindowScrollable() {
-  const windowHeight =
-    window.innerHeight || document.documentElement.clientHeight;
-
-  //tallest element
-  const documentHeight = Math.max(
-    document.body.scrollHeight,
-    document.body.offsetHeight,
-    document.documentElement.clientHeight,
-    document.documentElement.scrollHeight,
-    document.documentElement.offsetHeight,
-  );
-
-  return documentHeight > windowHeight;
-}
 
 function isBottomOfPage() {
   const scrollTop = window.scrollY || window.pageYOffset;
@@ -431,7 +421,7 @@ function isBottomOfPage() {
 
 let scrollIntervalTimer = null;
 function handleScrollAttempt(event) {
-  if (event.deltaY < 0 || !isBottomOfPage()) return;
+  if (event.deltaY < 0 || !isBottomOfPage() ) return;
   if (requestDebounce && scrollIntervalTimer === null) {
     // if request on cooldown, queue up to request afterwards
     scrollIntervalTimer = setInterval(() => {
@@ -455,6 +445,7 @@ for (const child of $main.children) {
 
 window.addEventListener('load', function () {
   window.addEventListener('wheel', handleScrollAttempt);
+  window.addEventListener('scroll', handleScrollAttempt);
   $homeNavButton.addEventListener('click', onOpenHomePage);
   $savesNavButton.addEventListener('click', onOpenSavesPage);
 
