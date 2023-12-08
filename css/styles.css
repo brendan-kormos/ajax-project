@@ -42,11 +42,11 @@ body {
   box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05);
 }
 
-.list-entry a {
+.entry-image-a {
   position: relative;
 }
 
-.list-entry a::after {
+.entry-image-a::after {
   position: absolute;
   display: inline-block;
   content: attr(data-serial);
@@ -77,8 +77,6 @@ body {
   max-height: 500px;
   object-fit: contain;
   position: relative;
-
-  /* box-shadow: 0 0 5px 4px rgba(255, 255, 255, 0.05); */
 }
 
 .single-entry-info-container {
@@ -90,8 +88,6 @@ body {
   flex-direction: column;
   align-items: center;
   position: relative;
-
-  /* background-color: wheat; */
   min-height: 300px;
 }
 
@@ -113,10 +109,6 @@ body {
   text-align: right;
 }
 
-/* #serial-details {
-  padding-bottom: 20px 0;
-} */
-
 .single-entry-info-container > h2 {
   padding: 10px 0;
   line-height: var(--header-2-font-size);
@@ -128,6 +120,46 @@ body {
 
 .divider {
   background-color: grey;
+}
+
+.save-button-div {
+  z-index: 1;
+  position: relative;
+}
+
+.save-button,
+.unsave-button {
+  height: fit-content;
+  width: fit-content;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
+  transform-origin: center;
+  transform: scale(1.5);
+  transition: transform 0.15s;
+  background: none;
+  border: none;
+}
+
+.save-button:hover {
+  transform: scale(2);
+}
+
+.unsave-button-i,
+.save-button-i {
+  z-index: 1;
+  color: white;
+}
+
+.lock-top-right {
+  position: absolute;
+  top: 20px;
+  bottom: 0;
+  right: 20px;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: none;
 }
 
 a:hover,

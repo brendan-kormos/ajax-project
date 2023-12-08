@@ -1,8 +1,9 @@
 // https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20
 // https://lldev.thespacedevs.com/2.2.0/launcher/ID/
-const GET_TYPE = 'request';
+const GET_TYPE = 'local';
 
-const $listEntry = document.querySelector('.list-entry');
+const $listEntry = document.querySelector('.list-entry').cloneNode(true);
+
 const $listContainer = document.querySelector('.masonry-holder');
 const $homeNavButton = document.querySelector('.nav-bar-home');
 const $singleEntry = document.querySelector('.single-entry');
@@ -24,10 +25,37 @@ const $mainTableTemplate = document
 
 const $tableRowTemplate = document.querySelector('.table-row').cloneNode(true);
 
+const $saveButtonTemplate = document
+  .querySelector('.save-button')
+  .cloneNode(true);
 const $main = document.querySelector('main');
+document.querySelector('.list-entry').remove();
+document.querySelector('.table-row').remove();
 
-import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
-import entries20JSON from './Entries_20.json' assert { type: 'json' };
+const main_Order = [
+  'status',
+  'flights',
+  'attempted_landings',
+  'successful_landings',
+  'first_launch_date',
+  'last_launch_date',
+];
+const launcherConfig_Order = [
+  'active',
+  'reusable',
+  'pending_launches',
+  'total_launch_count',
+  'successful_launches',
+  'consecutive_successful_launches',
+  'failed_launches',
+
+  'attempted_landings',
+  'successful_landings',
+  'failed_landings',
+];
+
+// import singleEntryJSON from './currentSingleEntry.json' assert { type: 'json' };
+// import entries20JSON from './Entries_20.json' assert { type: 'json' };
 
 let singleEntryRequest = null;
 
@@ -45,7 +73,7 @@ function ajaxGET(url) {
 }
 
 function resetSingleEntryPage() {
-  $singleEntryImage.src = "";
+  $singleEntryImage.src = '';
   for (const child of Array.from($singleEntryInfoContainer.children)) {
     $singleEntryInfoContainer.removeChild(child);
   }
@@ -65,17 +93,39 @@ function changeView(view, initial) {
   data.view = view;
 }
 
+function scrollTo(pos) {
+  window.scrollTo({
+    top: pos,
+    behavior: 'smooth',
+  });
+}
+
 function renderListEntry(entry) {
   const $clone = $listEntry.cloneNode(true);
   $clone.classList.remove('hidden');
   $clone.querySelector('img').src = entry.image_url;
-  $clone.querySelector('a').setAttribute('data-serial', entry.serial_number);
+  $clone
+    .querySelector('.entry-image-a')
+    .setAttribute('data-serial', entry.serial_number);
   $clone.setAttribute('data-id', entry.id);
   return $clone;
 }
 
 function initHomePage(retrieval) {
-  if (retrieval === 'request') {
+  const appendNodes = (dataEntry) => {
+    const $entry = renderListEntry(dataEntry);
+    $listContainer.append($entry);
+    if (data.saves[dataEntry.id.toString()]) {
+      setSaveIcon($entry.querySelector('.save-button-i'), true);
+    }
+  };
+
+  if (retrieval === 'local' && data.cachedIDs.length > 0) {
+    for (let i = 1; i < data.cachedIDs.length; i++) {
+      const dataEntry = data.cachedIDs[i];
+      appendNodes(dataEntry);
+    }
+  } else {
     const xhr = ajaxGET(
       'https://lldev.thespacedevs.com/2.2.0/launcher/?limit=20',
     );
@@ -83,16 +133,10 @@ function initHomePage(retrieval) {
       const response = xhr.response;
       for (let i = 0; i < response.results.length; i++) {
         const dataEntry = response.results[i];
-        const $entry = renderListEntry(dataEntry);
-        $listContainer.append($entry);
+        data.cachedIDs[dataEntry.id] = dataEntry;
+        appendNodes(dataEntry);
       }
     });
-  } else if (retrieval === 'local') {
-    for (let i = 0; i < entries20JSON.results.length; i++) {
-      const dataEntry = entries20JSON.results[i];
-      const $entry = renderListEntry(dataEntry);
-      $listContainer.append($entry);
-    }
   }
 }
 
@@ -106,6 +150,17 @@ function humanize(str) {
 }
 
 function onOpenHomePage(event) {
+  const $container = views$['home-container'];
+  for (let i = 0; i < $container.children.length; i++) {
+    const $entry = $container.children[i];
+    if ($entry.dataset.id && data.saves[$entry.dataset.id.toString()]) {
+      setSaveIcon(
+        $entry.querySelector('.save-button-i,.unsave-button-i'),
+        true,
+      );
+    }
+  }
+
   if (data.view !== 'home-container') changeView('home-container');
 }
 
@@ -140,28 +195,9 @@ function createTextEntryForSingle(text) {
   $newTextDiv.textContent = text;
   return $newTextDiv;
 }
-const main_Order = [
-  'status',
-  'flights',
-  'attempted_landings',
-  'successful_landings',
-  'first_launch_date',
-  'last_launch_date',
-];
-const launcherConfig_Order = [
-  'active',
-  'reusable',
-  'pending_launches',
-  'total_launch_count',
-  'successful_launches',
-  'consecutive_successful_launches',
-  'failed_launches',
 
-  'attempted_landings',
-  'successful_landings',
-  'failed_landings',
-];
 function loadSingleEntry(entry) {
+  scrollTo(0);
   data.singleEntry = entry;
 
   $singleEntryImage.src = entry.image_url;
@@ -177,6 +213,12 @@ function loadSingleEntry(entry) {
   $newHeader2.textContent = `${entry.launcher_config.full_name} ${entry.serial_number}`;
   $newHeader2.style['font-size'] = header2FontSize;
   $singleEntryInfoContainer.append($newHeader2);
+
+  const $saveButton = $saveButtonTemplate.cloneNode(true);
+  $saveButton.classList.remove('lock-top-right');
+  $saveButton.style['margin-left'] = '10px';
+  setSaveIcon($saveButton.children[0], !!data.saves[entry.id]);
+  $newHeader2.append($saveButton);
 
   let $divider = createDivider();
   $singleEntryInfoContainer.append($divider);
@@ -211,41 +253,87 @@ function loadSingleEntry(entry) {
   $singleEntryInfoContainer.append($launcherConfigTable);
 }
 
+function saveEntry(id) {
+  data.saves[id.toString()] = data.cachedIDs[id];
+}
+
+function setSaveIcon($element, save) {
+  if (save === true) {
+    $element.classList.replace('fa-regular', 'fa-solid');
+    $element.classList.replace('save-button-i', 'unsave-button-i');
+    return;
+  }
+  $element.classList.replace('fa-solid', 'fa-regular');
+  $element.classList.replace('unsave-button-i', 'save-button-i');
+}
+
 function onListEntryClicked(event) {
   const $target = event.target;
-  const $className = $target.className;
+  const classList = $target.classList;
   const tagName = $target.tagName;
   const $listEntry = $target.closest('.list-entry');
   if (!$listEntry) return;
+  if (classList.contains('save-button-i')) {
+    //save
+    setSaveIcon($target, true);
+    saveEntry($listEntry.dataset.id);
+    return;
+  } else if (classList.contains('unsave-button-i')) {
+    //unsave
+    return;
+  }
   if (singleEntryRequest) {
     singleEntryRequest.abort();
     singleEntryRequest = null;
   }
 
-  if (GET_TYPE === 'request') {
+  if (GET_TYPE === 'local' && data.cachedIDs[$listEntry.dataset.id]) {
+    //prefer local
+    loadSingleEntry(data.cachedIDs[$listEntry.dataset.id]);
+  } else {
+    //request
     const xhr = ajaxGET(
       `https://lldev.thespacedevs.com/2.2.0/launcher/${$listEntry.dataset.id}/`,
     );
     xhr.addEventListener('load', function () {
       const response = xhr.response;
+
       loadSingleEntry(response);
     });
     singleEntryRequest = xhr;
-  } else if (GET_TYPE === 'local') {
-    loadSingleEntry(data.singleEntry || singleEntryJSON);
   }
 
   changeView('single-entry-container');
 }
 
+function onSingleEntryContainerClicked(event) {
+  const $target = event.target;
+  const classList = $target.classList;
+  const tagName = $target.tagName;
+  if (classList.contains('save-button-i')) {
+    //save
+    setSaveIcon($target, true);
+    saveEntry(data.singleEntry.id);
+    return;
+  } else if (classList.contains('unsave-button-i')) {
+    //unsave
+    return;
+  }
+}
+
 $homeNavButton.addEventListener('click', onOpenHomePage);
 views$['home-container'].addEventListener('click', onListEntryClicked);
+views$['single-entry-container'].addEventListener(
+  'click',
+  onSingleEntryContainerClicked,
+);
 
 initHomePage(GET_TYPE);
 for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-if (data.view === 'single-entry-container')
-  loadSingleEntry(data.singleEntry || singleEntryJSON);
+if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
+
 changeView(data.view, true);
+scrollTo(data.scrollPositions[data.view]);
