@@ -115,9 +115,34 @@ function scrollTo(pos) {
   });
 }
 
+//formatting
+// humanize will convert strings displayed as "hell_world" to "Hello World"
+function humanize(str) {
+  let i,
+    frags = str.split('_');
+  for (i = 0; i < frags.length; i++) {
+    frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
+  }
+  return frags.join(' ');
+}
+
+//check if string is in the right format to be humanized
+function isUTCDateFormat(str) {
+  const utcDatePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+  return utcDatePattern.test(str);
+}
+
+// humanizeDate will be locallized and shown with a date and time of day
+function humanizeDate(utcDateString) {
+  //date example: '2018-12-05T18:16:16Z';
+  const utcDate = new Date(utcDateString);
+  const localDateString = utcDate.toLocaleString(); // Use the default options
+  return localDateString;
+}
+
 // make ajax request for more entries
 let requestDebounce = false;
-function requestMoreEntries(callback) {
+function requestMoreEntries(callback) { // only callsback if requests succeeds
   if (requestDebounce) return;
   requestDebounce = true;
   setTimeout(() => {
@@ -161,37 +186,12 @@ function appendNode(dataEntry) {
 }
 
 // append entries from http request into dom
-function appendNewEntries(response) {
+function handleNewEntries(response) {
   for (let i = 0; i < response.results.length; i++) {
     const dataEntry = response.results[i];
     data.cachedIDs[dataEntry.id] = dataEntry;
     appendNode(dataEntry);
   }
-}
-
-//formatting
-// humanize will convert strings displayed as "hell_world" to "Hello World"
-function humanize(str) {
-  let i,
-    frags = str.split('_');
-  for (i = 0; i < frags.length; i++) {
-    frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
-  }
-  return frags.join(' ');
-}
-
-//check if string is in the right format to be humanized
-function isUTCDateFormat(str) {
-  const utcDatePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
-  return utcDatePattern.test(str);
-}
-
-// humanizeDate will be locallized and shown with a date and time of day
-function humanizeDate(utcDateString) {
-  //date example: '2018-12-05T18:16:16Z';
-  const utcDate = new Date(utcDateString);
-  const localDateString = utcDate.toLocaleString(); // Use the default options
-  return localDateString;
 }
 
 // called once when website is opened
@@ -205,7 +205,7 @@ function loadHomePage(retrieval) {
   } else {
     requestMoreEntries(function (response) {
       //runs on load
-      appendNewEntries(response);
+      handleNewEntries(response);
     });
   }
 }
@@ -227,6 +227,7 @@ function loadSavesPage() {
   newSelectedText($savesNavButton);
 }
 
+// check if there are any changes to the entries' save status
 function onOpenHomePage(event) {
   const $target = event.target;
   const $container = views$['home-container'];
@@ -239,7 +240,6 @@ function onOpenHomePage(event) {
       );
     }
   }
-
   newSelectedText($target);
   if (data.view !== 'home-container') changeView('home-container');
 }
@@ -428,13 +428,13 @@ function handleScrollAttempt(event) {
       clearInterval(scrollIntervalTimer);
       scrollIntervalTimer = null;
       requestMoreEntries(function (response) {
-        appendNewEntries(response);
+        handleNewEntries(response);
       });
     }, 2 * 1000);
     return;
   }
   requestMoreEntries(function (response) {
-    appendNewEntries(response);
+    handleNewEntries(response);
   });
 }
 
@@ -444,8 +444,8 @@ for (const child of $main.children) {
 }
 
 window.addEventListener('load', function () {
-  window.addEventListener('wheel', handleScrollAttempt);
-  window.addEventListener('scroll', handleScrollAttempt);
+  window.addEventListener('wheel', handleScrollAttempt); // only works for mouse wheel, this is for if the page can't scroll, scroll won't be triggered
+  window.addEventListener('scroll', handleScrollAttempt); // works on mobile, mobile should never have enough empty space to not trigger scroll
   $homeNavButton.addEventListener('click', onOpenHomePage);
   $savesNavButton.addEventListener('click', onOpenSavesPage);
 
