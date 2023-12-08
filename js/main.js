@@ -6,6 +6,7 @@ const $listEntry = document.querySelector('.list-entry').cloneNode(true);
 
 const $homeContainer = document.querySelector('#home-container');
 const $savesContainer = $homeContainer.cloneNode(true);
+$savesContainer.id = 'saves-container'
 const $homeNavButton = document.querySelector('#nav-bar-home');
 const $savesNavButton = document.querySelector('#nav-bar-saves');
 const $singleEntry = document.querySelector('.single-entry');
@@ -180,7 +181,6 @@ function humanize(str) {
 }
 
 function newSelectedText($target) {
-  console.log($target);
   document.querySelectorAll('.nav-bar > a').forEach(function ($element) {
     if ($element === $target) {
       $element.classList.add('selected-text');
@@ -323,6 +323,7 @@ function onListEntryClicked(event) {
   const classList = $target.classList;
   const tagName = $target.tagName;
   const $listEntry = $target.closest('.list-entry');
+  const $container = $target.closest('.masonry-holder')
   if (!$listEntry) return;
   if (classList.contains('save-button-i')) {
     //save
@@ -333,6 +334,9 @@ function onListEntryClicked(event) {
     //unsave
     setSaveIcon($target, false);
     unsaveEntry($listEntry.dataset.id);
+    if($container.id === 'saves-container'){
+      $listEntry.parentElement.removeChild($listEntry)
+    }
     return;
   }
   if (singleEntryRequest) {
@@ -391,20 +395,15 @@ for (const child of $main.children) {
   child.classList.add('hidden');
 }
 
-console.log('view', data.view);
-
 initHomePage(GET_TYPE);
-
 switch (data.view) {
   case 'single-entry-container':
     loadSingleEntry(data.singleEntry);
     break;
   case 'saves-container':
-    console.log('passes');
     initSavesPage(GET_TYPE);
     break;
 }
-// if (data.view === 'single-entry-container') loadSingleEntry(data.singleEntry);
 
 changeView(data.view, true);
 scrollTo(data.scrollPositions[data.view]);
