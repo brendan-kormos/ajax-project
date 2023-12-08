@@ -44,11 +44,21 @@ function ajaxGET(url) {
   return xhr;
 }
 
+function resetSingleEntryPage() {
+  $singleEntryImage.src = "";
+  for (const child of Array.from($singleEntryInfoContainer.children)) {
+    $singleEntryInfoContainer.removeChild(child);
+  }
+}
+
 function changeView(view, initial) {
   if (initial) {
     views$[view].classList.remove('hidden');
     data.view = view;
     return;
+  }
+  if (data.view === 'single-entry-container') {
+    resetSingleEntryPage();
   }
   views$[data.view].classList.add('hidden');
   views$[view].classList.remove('hidden');
@@ -153,9 +163,6 @@ const launcherConfig_Order = [
 ];
 function loadSingleEntry(entry) {
   data.singleEntry = entry;
-  for (const child of Array.from($singleEntryInfoContainer.children)) {
-    $singleEntryInfoContainer.removeChild(child);
-  }
 
   $singleEntryImage.src = entry.image_url;
   const $newMainTable = $mainTableTemplate.cloneNode(true);
