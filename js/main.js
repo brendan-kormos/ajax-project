@@ -142,7 +142,8 @@ function humanizeDate(utcDateString) {
 
 // make ajax request for more entries
 let requestDebounce = false;
-function requestMoreEntries(callback) { // only callsback if requests succeeds
+function requestMoreEntries(callback) {
+  // only callsback if requests succeeds
   if (requestDebounce) return;
   requestDebounce = true;
   setTimeout(() => {
@@ -418,10 +419,11 @@ function isBottomOfPage() {
   const clientHeight = window.innerHeight;
   return scrollTop + clientHeight >= scrollHeight;
 }
+//test
 
 let scrollIntervalTimer = null;
 function handleScrollAttempt(event) {
-  if (event.deltaY < 0 || !isBottomOfPage() ) return;
+  if (event.deltaY < 0 || !isBottomOfPage()) return;
   if (requestDebounce && scrollIntervalTimer === null) {
     // if request on cooldown, queue up to request afterwards
     scrollIntervalTimer = setInterval(() => {
